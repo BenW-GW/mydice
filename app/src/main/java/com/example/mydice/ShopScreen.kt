@@ -1,3 +1,5 @@
+//ShopScreen.kt
+
 package com.example.mydice
 
 import androidx.compose.foundation.Image

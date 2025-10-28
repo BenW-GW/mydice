@@ -1,3 +1,5 @@
+// MainActivity.kt
+
 package com.example.mydice
 
 import android.os.Bundle
@@ -70,66 +72,67 @@ fun AppNavigation() {
         }
     }
 }
+//
+//@Composable
+//fun Dice(){
+//    var dieIndex by remember { mutableIntStateOf(5) }
+//    var dieValue by remember {mutableIntStateOf(6)}
+//    val dieArray=arrayOf(
+//        R.drawable.dice1,
+//        R.drawable.dice2,
+//        R.drawable.dice3,
+//        R.drawable.dice4,
+//        R.drawable.dice5,
+//        R.drawable.dice6
+//    )
+//    // Rotation animation
+//
+//
+//
+//    Column(
+//        modifier = Modifier.fillMaxSize(),
+//        // verticalArrangement = Arrangement.SpaceEvenly,
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        Spacer(modifier = Modifier.height(24.dp))
+//
+//        Image(
+//            painter= painterResource(id=dieArray[dieIndex]),
+//            contentDescription = "Dice image",
+//            modifier = Modifier
+//                .size(150.dp)
+//
+//
+//        )
+//        Spacer(modifier = Modifier.height(24.dp))
+//
+//        Button(onClick={
+//            dieIndex=rollDie()
+//            dieValue=dieIndex+1
+//
+//        }
+//
+//        )
+//        { Text("Roll Die")}
+//        Spacer(modifier = Modifier.height(24.dp))
+//
+//        Text("$dieValue")
+//    }
+//}
+//
+//
+//fun rollDie():Int{
+//    val roll=(0..5).random()
+//    return roll
+//}
+//
+//
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun DicePreview() {
+//    MyDiceTheme {
+//        Dice()
+//    }
+//}
 
-@Composable
-fun Dice(){
-    var dieIndex by remember { mutableIntStateOf(5) }
-    var dieValue by remember {mutableIntStateOf(6)}
-    val dieArray=arrayOf(
-        R.drawable.dice1,
-        R.drawable.dice2,
-        R.drawable.dice3,
-        R.drawable.dice4,
-        R.drawable.dice5,
-        R.drawable.dice6
-    )
-    // Rotation animation
-
-
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        // verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Image(
-            painter= painterResource(id=dieArray[dieIndex]),
-            contentDescription = "Dice image",
-            modifier = Modifier
-                .size(150.dp)
-
-
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(onClick={
-            dieIndex=rollDie()
-            dieValue=dieIndex+1
-
-        }
-
-        )
-        { Text("Roll Die")}
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text("$dieValue")
-    }
-}
-
-
-fun rollDie():Int{
-    val roll=(0..5).random()
-    return roll
-}
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun DicePreview() {
-    MyDiceTheme {
-        Dice()
-    }
-}

@@ -1,3 +1,5 @@
+//DiceScreen.kt
+
 package com.example.mydice
 
 import androidx.compose.animation.core.animateFloatAsState
@@ -66,18 +68,34 @@ fun DiceScreen(navController: NavController, viewModel: GameViewModel) {
                         rotationY = rotation
                     }
             ) {
-                // Base Dice Image
+                // 1. Base Dice Image (Stays the same)
                 Image(
                     painter = painterResource(id = viewModel.getDiceImageResource(gameState.currentDieValue)),
                     contentDescription = "Dice showing ${gameState.currentDieValue}",
                     modifier = Modifier.fillMaxSize()
                 )
-                // Overlay Image
+
+                // 2. Overlay Image (Logic is now much smarter)
                 viewModel.getOverlayImageResource()?.let { overlayRes ->
+
+                    // Determine the modifier based on the equipped overlay ID
+                    val overlayModifier = when (gameState.equippedOverlayId) {
+                        "overlay_party_hat" -> Modifier
+                            .align(Alignment.TopCenter) // Position at the top
+                            .fillMaxWidth(0.7f) // Make it 70% of the dice width
+                            .padding(top = 8.dp) // Give it a little space from the top edge
+
+                        "overlay_sunglasses" -> Modifier
+                            .align(Alignment.Center) // Position in the center
+                            .fillMaxWidth(0.9f) // Make them almost as wide as the dice
+
+                        else -> Modifier.fillMaxSize() // A fallback, though you can customize this
+                    }
+
                     Image(
                         painter = painterResource(id = overlayRes),
                         contentDescription = "Dice Overlay",
-                        modifier = Modifier.fillMaxSize()
+                        modifier = overlayModifier // Use our new dynamic modifier
                     )
                 }
             }
