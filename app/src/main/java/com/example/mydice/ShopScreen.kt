@@ -1,5 +1,3 @@
-// REPLACE YOUR ENTIRE ShopScreen.kt FILE WITH THIS
-
 package com.example.mydice
 
 import androidx.compose.foundation.Image
@@ -109,12 +107,10 @@ fun ShopItemCard(item: ShopItem, gameState: GameState, viewModel: GameViewModel)
                 .padding(16.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
-            // NOTE: horizontalArrangement is now removed from here
         ) {
-            // This Row now contains the weight modifier to be flexible
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f) // This tells the text to take up all available space
+                modifier = Modifier.weight(1f)
             ) {
                 Image(
                     painter = painterResource(id = item.imageRes),
@@ -128,7 +124,6 @@ fun ShopItemCard(item: ShopItem, gameState: GameState, viewModel: GameViewModel)
                 }
             }
 
-            // Add a small spacer for guaranteed padding
             Spacer(Modifier.width(8.dp))
 
             ShopItemButton(

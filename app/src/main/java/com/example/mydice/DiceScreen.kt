@@ -1,5 +1,3 @@
-//DiceScreen.kt
-
 package com.example.mydice
 
 import androidx.annotation.DrawableRes
@@ -45,7 +43,6 @@ fun DiceScreen(navController: NavController, viewModel: GameViewModel) {
         label = "diceRotation"
     )
 
-    // <-- FIX #1: Define the missing text variables here
     val rollResultText = "You rolled: ${gameState.lastRollValues.joinToString(", ")}"
     val rollSum = gameState.lastRollValues.sum()
     val pointsText = if (gameState.activeMultiplier > 1) {
@@ -88,7 +85,7 @@ fun DiceScreen(navController: NavController, viewModel: GameViewModel) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp) // Set a fixed height for the row
+                    .height(150.dp)
                     .graphicsLayer { rotationY = rotation },
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically

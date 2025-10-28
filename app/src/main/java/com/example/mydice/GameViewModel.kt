@@ -1,10 +1,9 @@
-// GameViewModel.kt
 package com.example.mydice
 
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope // <-- THIS IMPORT FIXES 'viewModelScope'
+import androidx.lifecycle.viewModelScope
 import com.example.mydice.data.ItemType
 import com.example.mydice.data.ShopItem
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +13,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-// This is the one and only place this data class should be defined.
 data class GameState(
     val totalPoints: Int = 0,
     val lastRollValues: List<Int> = listOf(6),
@@ -24,7 +22,6 @@ data class GameState(
     val equippedOverlayId: String? = null
 )
 
-// This is the one and only place this class should be defined.
 class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val sharedPreferences = application.getSharedPreferences("game_prefs", Context.MODE_PRIVATE)
