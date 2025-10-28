@@ -1,4 +1,4 @@
-//ShopScreen.kt
+// REPLACE YOUR ENTIRE ShopScreen.kt FILE WITH THIS
 
 package com.example.mydice
 
@@ -8,10 +8,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -26,6 +25,19 @@ import com.example.mydice.data.ShopItem
 @Composable
 fun ShopScreen(navController: NavController, viewModel: GameViewModel) {
     val gameState by viewModel.gameState.collectAsState()
+    var showResetDialog by remember { mutableStateOf(false) }
+
+    if (showResetDialog) {
+        ResetGameConfirmationDialog(
+            onConfirm = {
+                viewModel.resetGame()
+                showResetDialog = false
+            },
+            onDismiss = {
+                showResetDialog = false
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -39,9 +51,12 @@ fun ShopScreen(navController: NavController, viewModel: GameViewModel) {
                 actions = {
                     Text(
                         text = "Points: ${gameState.totalPoints}",
-                        modifier = Modifier.padding(end = 16.dp),
+                        modifier = Modifier.padding(end = 8.dp),
                         style = MaterialTheme.typography.titleMedium
                     )
+                    IconButton(onClick = { showResetDialog = true }) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Reset Game")
+                    }
                 }
             )
         }
@@ -61,26 +76,46 @@ fun ShopScreen(navController: NavController, viewModel: GameViewModel) {
 }
 
 @Composable
+fun ResetGameConfirmationDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Reset Game") },
+        text = { Text("Are you sure you want to reset all your progress? This action cannot be undone.") },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text("Reset")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
 fun ShopItemCard(item: ShopItem, gameState: GameState, viewModel: GameViewModel) {
     val isPurchased = item.id in gameState.purchasedItemIds
     val canAfford = gameState.totalPoints >= item.cost
-    val isEquipped = when(item.itemType) {
-        ItemType.DICE_SKIN -> gameState.equippedDiceSkinId == item.id
-        ItemType.OVERLAY -> gameState.equippedOverlayId == item.id
-    }
+    val isEquipped = item.itemType == ItemType.MULTIPLIER && gameState.equippedOverlayId == item.id
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
+    Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(4.dp)) {
         Row(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalAlignment = Alignment.CenterVertically
+            // NOTE: horizontalArrangement is now removed from here
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            // This Row now contains the weight modifier to be flexible
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f) // This tells the text to take up all available space
+            ) {
                 Image(
                     painter = painterResource(id = item.imageRes),
                     contentDescription = item.name,
@@ -93,7 +128,11 @@ fun ShopItemCard(item: ShopItem, gameState: GameState, viewModel: GameViewModel)
                 }
             }
 
+            // Add a small spacer for guaranteed padding
+            Spacer(Modifier.width(8.dp))
+
             ShopItemButton(
+                itemType = item.itemType,
                 isPurchased = isPurchased,
                 isEquipped = isEquipped,
                 canAfford = canAfford,
@@ -106,30 +145,23 @@ fun ShopItemCard(item: ShopItem, gameState: GameState, viewModel: GameViewModel)
 
 @Composable
 fun ShopItemButton(
-    isPurchased: Boolean,
-    isEquipped: Boolean,
-    canAfford: Boolean,
-    onBuyClick: () -> Unit,
-    onEquipClick: () -> Unit
+    itemType: ItemType, isPurchased: Boolean, isEquipped: Boolean, canAfford: Boolean,
+    onBuyClick: () -> Unit, onEquipClick: () -> Unit
 ) {
     when {
+        isPurchased && itemType == ItemType.DICE_UPGRADE -> {
+            Button(onClick = {}, enabled = false) { Text("Purchased") }
+        }
         isEquipped -> {
-            Button(onClick = onEquipClick,
-                // If it's an overlay, clicking again unequips it. Dice skins can't be unequipped, only replaced.
-                // For simplicity, we just let both be "clicked" again.
-            ) {
-                Text("Equipped")
-            }
+            Button(onClick = onEquipClick) { Text("Equipped") }
         }
         isPurchased -> {
             Button(onClick = onEquipClick, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)) {
                 Text("Equip")
             }
         }
-        else -> { // Not purchased
-            Button(onClick = onBuyClick, enabled = canAfford) {
-                Text("Buy")
-            }
+        else -> {
+            Button(onClick = onBuyClick, enabled = canAfford) { Text("Buy") }
         }
     }
 }

@@ -2,6 +2,7 @@
 
 package com.example.mydice
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -21,6 +22,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
+@DrawableRes
+fun getDiceResourceForValue(value: Int): Int {
+    return when (value) {
+        1 -> R.drawable.dice1
+        2 -> R.drawable.dice2
+        3 -> R.drawable.dice3
+        4 -> R.drawable.dice4
+        5 -> R.drawable.dice5
+        else -> R.drawable.dice6
+    }
+}
+
 @Composable
 fun DiceScreen(navController: NavController, viewModel: GameViewModel) {
     val gameState by viewModel.gameState.collectAsState()
@@ -31,6 +44,17 @@ fun DiceScreen(navController: NavController, viewModel: GameViewModel) {
         animationSpec = tween(durationMillis = 500),
         label = "diceRotation"
     )
+
+    // <-- FIX #1: Define the missing text variables here
+    val rollResultText = "You rolled: ${gameState.lastRollValues.joinToString(", ")}"
+    val rollSum = gameState.lastRollValues.sum()
+    val pointsText = if (gameState.activeMultiplier > 1) {
+        "Total: $rollSum x${gameState.activeMultiplier} = ${rollSum * gameState.activeMultiplier} Points!"
+    } else {
+        "Total: $rollSum Points!"
+    }
+
+
 
     Column(
         modifier = Modifier
@@ -47,6 +71,7 @@ fun DiceScreen(navController: NavController, viewModel: GameViewModel) {
         ) {
             Card(elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)) {
                 Text(
+
                     text = "Points: ${gameState.totalPoints}",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
@@ -58,54 +83,56 @@ fun DiceScreen(navController: NavController, viewModel: GameViewModel) {
             }
         }
 
-        // Dice Area
+        // Dice Area - Updated for multiple dice
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(
-                contentAlignment = Alignment.Center,
+            Row(
                 modifier = Modifier
-                    .size(200.dp)
-                    .graphicsLayer {
-                        rotationY = rotation
-                    }
+                    .fillMaxWidth()
+                    .height(150.dp) // Set a fixed height for the row
+                    .graphicsLayer { rotationY = rotation },
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // 1. Base Dice Image (Stays the same)
-                Image(
-                    painter = painterResource(id = viewModel.getDiceImageResource(gameState.currentDieValue)),
-                    contentDescription = "Dice showing ${gameState.currentDieValue}",
-                    modifier = Modifier.fillMaxSize()
-                )
-
-                // 2. Overlay Image (Logic is now much smarter)
-                viewModel.getOverlayImageResource()?.let { overlayRes ->
-
-                    // Determine the modifier based on the equipped overlay ID
-                    val overlayModifier = when (gameState.equippedOverlayId) {
-                        "overlay_party_hat" -> Modifier
-                            .align(Alignment.TopCenter) // Position at the top
-                            .fillMaxWidth(0.7f) // Make it 70% of the dice width
-                            .padding(top = 8.dp) // Give it a little space from the top edge
-
-                        "overlay_sunglasses" -> Modifier
-                            .align(Alignment.Center) // Position in the center
-                            .fillMaxWidth(0.9f) // Make them almost as wide as the dice
-
-                        else -> Modifier.fillMaxSize() // A fallback, though you can customize this
+                // Loop through the rolled dice values and display each one
+                gameState.lastRollValues.forEachIndexed { index, value ->
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.size(120.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = getDiceResourceForValue(value)),
+                            contentDescription = "Dice showing $value",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        // Show overlay only on the first die for simplicity
+                        if (index == 0) {
+                            viewModel.getOverlayImageResource()?.let { overlayRes ->
+                                val overlayModifier = when (gameState.equippedOverlayId) {
+                                    "overlay_party_hat" -> Modifier.align(Alignment.TopCenter).fillMaxWidth(0.7f).padding(top = 4.dp)
+                                    "overlay_sunglasses" -> Modifier.align(Alignment.Center).fillMaxWidth(0.9f)
+                                    else -> Modifier.fillMaxSize()
+                                }
+                                Image(
+                                    painter = painterResource(id = overlayRes),
+                                    contentDescription = "Dice Overlay",
+                                    modifier = overlayModifier
+                                )
+                            }
+                        }
                     }
-
-                    Image(
-                        painter = painterResource(id = overlayRes),
-                        contentDescription = "Dice Overlay",
-                        modifier = overlayModifier // Use our new dynamic modifier
-                    )
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "You rolled a ${gameState.currentDieValue}!",
-                style = MaterialTheme.typography.headlineMedium
+                text = rollResultText,
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(
+                text = pointsText,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
             )
         }
-
         // Roll Button
         Button(
             onClick = {
